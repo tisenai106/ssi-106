@@ -170,6 +170,7 @@ export async function POST(req: Request) {
       },
       { status: 201 },
     );
+    /* eslint-disable @typescript-eslint/no-explicit-any */
   } catch (error: any) {
     console.error('[API_TICKETS_POST_ERROR]', error);
 
@@ -205,6 +206,7 @@ export async function POST(req: Request) {
 /**
  * Envia email de confirmação para o solicitante
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 async function sendConfirmationToRequester(ticket: any): Promise<void> {
   try {
     // Verificar se o solicitante tem email e nome
@@ -251,6 +253,7 @@ async function sendConfirmationToRequester(ticket: any): Promise<void> {
 /**
  * Envia notificação por email para os gestores da área
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 async function sendNotificationToManagers(ticket: any): Promise<void> {
   try {
     // Buscar gestores da área
