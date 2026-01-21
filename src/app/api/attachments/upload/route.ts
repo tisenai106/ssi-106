@@ -31,10 +31,11 @@ export async function POST(req: Request) {
   }
 
   try {
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     // 4. Fazer o Upload para o Vercel Blob (método 'put')
     const blobResult = await put(`tickets/${userId}/${filename}`, blob, {
       access: 'public',
-    });
+    } as any);
 
     // 5. Retornar a URL
     // IMPORTANTE: Assim como na API anterior, NÃO salvamos no Prisma.
