@@ -17,8 +17,8 @@ export default function AppLayout({ children }: AppLayoutProps) {
         {/* O conteúdo da página (Client ou Server) é renderizado dentro do provedor */}
         <main className="flex-1">{children}</main>
         <Footer
-          companyName="SSI Tech Support"
-          supportEmail="suporte@ssi-techsupport.com"
+          companyName="SSI - 1.06"
+          supportEmail="ti.senai106@sp.senai.br"
           showSocial={true}
         />
       </div>

@@ -75,7 +75,11 @@ export function UserNav({ name, email, role, imageUrl }: UserNavProps) {
         >
           {/* Avatar */}
           <Avatar className="h-9 w-9">
-            <AvatarImage src={imageUrl || undefined} alt={name} />
+            <AvatarImage
+              src={imageUrl || undefined}
+              alt={name}
+              className="object-cover"
+            />
             <AvatarFallback>{initials}</AvatarFallback>
           </Avatar>
 

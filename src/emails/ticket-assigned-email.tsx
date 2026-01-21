@@ -269,21 +269,9 @@ const container = {
 
 /* ==== HEADER COM GRADIENTE ==== */
 const header = {
-  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+  background: 'blue',
   padding: '40px 32px',
   textAlign: 'center' as const,
-};
-
-const iconBadge = {
-  width: '64px',
-  height: '64px',
-  borderRadius: '50%',
-  backgroundColor: 'rgba(255,255,255,0.2)',
-  backdropFilter: 'blur(10px)',
-  margin: '0 auto 20px',
-  border: '2px solid rgba(255,255,255,0.3)',
-  textAlign: 'center' as const,
-  lineHeight: '64px',
 };
 
 const iconText = {
@@ -455,7 +443,7 @@ const btnContainer = {
 };
 
 const button = {
-  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+  background: 'blue',
   color: '#ffffff',
   padding: '16px 32px',
   borderRadius: '12px',

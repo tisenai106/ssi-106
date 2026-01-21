@@ -1,5 +1,6 @@
 import { PrismaClient, Role } from '@prisma/client';
-import * as ExcelJS from 'exceljs'; // <-- Mudamos para ExcelJS
+// 2. CORREÇÃO NA IMPORTAÇÃO DO EXCELJS
+import ExcelJS from 'exceljs';
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
@@ -8,7 +9,7 @@ const prisma = new PrismaClient();
 
 // Configuração
 const FILE_NAME = 'func.xlsx'; // O nome do seu arquivo na raiz
-const DEFAULT_PASSWORD = '12345678'; // Senha inicial para todos
+const DEFAULT_PASSWORD = 'Mudar123!'; // Senha inicial para todos
 
 interface UserRow {
   name: string;
@@ -20,7 +21,7 @@ interface UserRow {
 async function main() {
   const filePath = path.join(process.cwd(), FILE_NAME);
 
-  // 1. Verificar se o arquivo existe
+  // Verificar se o arquivo existe
   if (!fs.existsSync(filePath)) {
     console.error(
       `❌ Erro: Arquivo '${FILE_NAME}' não encontrado na raiz do projeto.`,
@@ -30,7 +31,7 @@ async function main() {
 
   console.log(`📖 Lendo arquivo: ${FILE_NAME}...`);
 
-  // 2. Ler o Excel com ExcelJS
+  // Ler o Excel com ExcelJS
   const workbook = new ExcelJS.Workbook();
   await workbook.xlsx.readFile(filePath);
 
@@ -51,20 +52,26 @@ async function main() {
     if (rowNumber === 1) {
       row.eachCell((cell, colNumber) => {
         // Remove espaços extras dos cabeçalhos (ex: " email " -> "email")
-        headers[colNumber] = cell.text.trim();
+        // Garante que é string
+        const headerText = cell.text ? cell.text.toString().trim() : '';
+        headers[colNumber] = headerText;
       });
       return;
     }
 
     // Linhas de Dados
-    //eslint-disable-next-line @typescript-eslint/no-explicit-any
+    /* eslint-disable @typescript-eslint/no-explicit-any */
     const rowData: any = {};
     row.eachCell((cell, colNumber) => {
       const header = headers[colNumber];
       if (header) {
-        // Usa 'text' ou 'value' dependendo do conteúdo (Hyperlink vs Texto)
-        // Para segurança, convertemos tudo para string
-        rowData[header] = cell.text || String(cell.value);
+        // Usa 'text' ou 'value' dependendo do conteúdo
+        // Se for um objeto (como hyperlink), tenta pegar o texto, senão converte para string
+        let cellValue = cell.text;
+        if (!cellValue && cell.value) {
+          cellValue = String(cell.value);
+        }
+        rowData[header] = cellValue;
       }
     });
 
@@ -78,17 +85,17 @@ async function main() {
     `🔍 Encontrados ${rows.length} registros. Iniciando importação...`,
   );
 
-  // 3. Preparar hash da senha
+  // Preparar hash da senha
   const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
 
-  // 4. Buscar Áreas existentes para mapeamento (Cache)
+  // Buscar Áreas existentes para mapeamento (Cache)
   const areas = await prisma.area.findMany();
   const areaMap = new Map(areas.map((a) => [a.code.toUpperCase(), a.id]));
 
   let successCount = 0;
   let errorCount = 0;
 
-  // 5. Iterar e Criar
+  // Iterar e Criar
   for (const [index, row] of rows.entries()) {
     const rowNum = index + 2; // +2 porque o Excel começa no 1 e tem cabeçalho
 

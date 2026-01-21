@@ -20,36 +20,36 @@ interface FooterProps {
 }
 
 export function Footer({
-  companyName = 'TechSupport',
-  supportEmail = 'suporte@techsupport.com',
+  companyName = 'SSI - 1.06',
+  supportEmail = 'ti.senai106@sp.senai.br',
   showSocial = true,
 }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   const footerLinks = {
     product: [
-      { label: 'Funcionalidades', href: '/features' },
-      { label: 'Preços', href: '/pricing' },
-      { label: 'Integrações', href: '/integrations' },
-      { label: 'Atualizações', href: '/changelog' },
+      { label: 'Funcionalidades', href: '#' },
+      { label: 'Preços', href: '#' },
+      { label: 'Integrações', href: '#' },
+      { label: 'Atualizações', href: '#' },
     ],
     resources: [
-      { label: 'Documentação', href: '/docs', icon: FileText },
-      { label: 'Central de Ajuda', href: '/help', icon: HelpCircle },
-      { label: 'Status', href: '/status', icon: Zap },
-      { label: 'API', href: '/api', icon: ExternalLink },
+      { label: 'Documentação', href: '#', icon: FileText },
+      { label: 'Central de Ajuda', href: '#', icon: HelpCircle },
+      { label: 'Status', href: '#', icon: Zap },
+      { label: 'API', href: '#', icon: ExternalLink },
     ],
     company: [
-      { label: 'Sobre', href: '/about' },
-      { label: 'Blog', href: '/blog' },
-      { label: 'Carreiras', href: '/careers' },
-      { label: 'Contato', href: '/contact' },
+      { label: 'Sobre', href: '#' },
+      { label: 'Blog', href: '#' },
+      { label: 'Carreiras', href: '#' },
+      { label: 'Contato', href: '#' },
     ],
     legal: [
-      { label: 'Privacidade', href: '/privacy', icon: Shield },
-      { label: 'Termos de Uso', href: '/terms', icon: FileText },
-      { label: 'Cookies', href: '/cookies' },
-      { label: 'Licenças', href: '/licenses' },
+      { label: 'Privacidade', href: '#', icon: Shield },
+      { label: 'Termos de Uso', href: '#', icon: FileText },
+      { label: 'Cookies', href: '#' },
+      { label: 'Licenças', href: '#' },
     ],
   };
 
