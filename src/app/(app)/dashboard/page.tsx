@@ -277,8 +277,8 @@ function calculateSatisfactionTrend(
 // --- CONFIGURAÇÃO DE EXCEÇÕES (Hardcode) ---
 const MULTI_AREA_MANAGERS: Record<string, string[]> = {
   'everaldo.reis@sp.senai.br': [
-    'cmhzbzv9y0002o4k8yji9aqsk',
-    'cmhzbzv9v0001o4k8zacghs28',
+    'cmko730c70001o4fs97u0lxtb',
+    'cmko730fm0002o4fs6iap316v',
   ],
 };
 

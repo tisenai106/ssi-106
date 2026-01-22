@@ -1,4 +1,4 @@
-import { NextResponse, NextRequest } from 'next/server'; // Importe NextRequest
+import { NextResponse, NextRequest } from 'next/server';
 import { Prisma } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
@@ -7,7 +7,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import db from '@/app/_lib/prisma';
 
-// --- Schema de Criação (POST) - (Sem alterações) ---
+// --- Schema de Criação (POST) ---
 const userCreateSchema = z.object({
   email: z.string().email({ message: 'Email inválido' }),
   name: z.string().min(3, { message: 'Nome deve ter pelo menos 3 caracteres' }),
@@ -21,7 +21,6 @@ const userCreateSchema = z.object({
 // --- MODIFIED GET HANDLER ---
 // Retorna usuários com base na permissão e filtros
 export async function GET(req: NextRequest) {
-  // Use NextRequest para ler a URL
   // 2.1. Validar a sessão
   const session = await getServerSession(authOptions);
 
@@ -37,24 +36,77 @@ export async function GET(req: NextRequest) {
   // 2.2. Construção da Query (Where) com base na Role
   const { searchParams } = new URL(req.url);
   const roleFilter = searchParams.get('role'); // Filtro: /api/users?role=TECHNICIAN
+  const ticketAreaId = searchParams.get('ticketAreaId'); // Novo filtro para área do chamado
 
   const where: Prisma.UserWhereInput = {};
 
-  // Se for Manager, filtra pela sua própria área
+  // Se for Manager, aplicar lógica especial para Predial/Elétrica
   if (session.user.role === Role.MANAGER) {
     if (!session.user.areaId) {
-      // Manager sem área não pode ver ninguém
       return NextResponse.json(
         { error: 'Gestor não associado a uma área' },
         { status: 403 },
       );
     }
-    where.areaId = session.user.areaId;
+
+    // Buscar informações da área do gestor
+    const managerArea = await db.area.findUnique({
+      where: { id: session.user.areaId },
+      select: { id: true, name: true },
+    });
+
+    if (!managerArea) {
+      return NextResponse.json(
+        { error: 'Área do gestor não encontrada' },
+        { status: 404 },
+      );
+    }
+
+    // Se o gestor for de Predial ou Elétrica, buscar IDs de ambas as áreas
+    if (managerArea.name === 'BUILDING' || managerArea.name === 'ELECTRICAL') {
+      const buildingElectricalAreas = await db.area.findMany({
+        where: {
+          name: { in: ['BUILDING', 'ELECTRICAL'] },
+        },
+        select: { id: true },
+      });
+
+      const areaIds = buildingElectricalAreas.map((area) => area.id);
+      where.areaId = { in: areaIds };
+    } else {
+      // Para outras áreas (como TI), manter comportamento original
+      where.areaId = session.user.areaId;
+    }
+  }
+
+  // Se Super Admin e houver filtro por área do ticket
+  if (session.user.role === Role.SUPER_ADMIN && ticketAreaId) {
+    const ticketArea = await db.area.findUnique({
+      where: { id: ticketAreaId },
+      select: { name: true },
+    });
+
+    if (ticketArea) {
+      // Se a área do ticket for Predial ou Elétrica, buscar técnicos de ambas
+      if (ticketArea.name === 'BUILDING' || ticketArea.name === 'ELECTRICAL') {
+        const buildingElectricalAreas = await db.area.findMany({
+          where: {
+            name: { in: ['BUILDING', 'ELECTRICAL'] },
+          },
+          select: { id: true },
+        });
+
+        const areaIds = buildingElectricalAreas.map((area) => area.id);
+        where.areaId = { in: areaIds };
+      } else {
+        // Para outras áreas, filtrar normalmente
+        where.areaId = ticketAreaId;
+      }
+    }
   }
 
   // Se o filtro de Role for aplicado
   if (roleFilter) {
-    // Validação simples para garantir que a Role é válida
     if (Object.values(Role).includes(roleFilter as Role)) {
       where.role = roleFilter as Role;
     } else {
@@ -65,7 +117,7 @@ export async function GET(req: NextRequest) {
   try {
     // 2.3. Buscar usuários no banco
     const users = await db.user.findMany({
-      where, // Aplica os filtros
+      where,
       select: {
         id: true,
         email: true,
@@ -92,7 +144,7 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// --- POST HANDLER (Sem alterações) ---
+// --- POST HANDLER ---
 // Cria um novo usuário (apenas para o Super Admin)
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);

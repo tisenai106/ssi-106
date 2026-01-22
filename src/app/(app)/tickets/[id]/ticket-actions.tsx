@@ -54,7 +54,7 @@ import {
 } from '@/app/_components/ui/alert-dialog';
 import { cn } from '@/app/_lib/utils';
 
-type Technician = Pick<User, 'id' | 'name'>;
+type Technician = Pick<User, 'id' | 'name' | 'areaId'>;
 type CurrentUser = Pick<User, 'id' | 'role' | 'areaId'>;
 type AreaOption = { id: string; name: string };
 
@@ -164,14 +164,15 @@ export function TicketActions({
 
   const { role, areaId, id: userId } = currentUser;
 
+  const isEv = userId === 'cmkplp6t1003do4q4pefd3xjw';
   const isSuperAdmin = role === Role.SUPER_ADMIN;
   const isManager = role === Role.MANAGER && ticket.areaId === areaId;
   const isAssignedTech =
     role === Role.TECHNICIAN && ticket.technicianId === userId;
 
-  const canAssignTech = isSuperAdmin || isManager;
-  const canUpdateStatus = isSuperAdmin || isManager || isAssignedTech;
-  const canManageTicket = isSuperAdmin || isManager;
+  const canAssignTech = isSuperAdmin || isManager || isEv;
+  const canUpdateStatus = isSuperAdmin || isManager || isAssignedTech || isEv;
+  const canManageTicket = isSuperAdmin || isManager || isEv;
 
   const assignForm = useForm({
     resolver: zodResolver(assignSchema),
@@ -197,7 +198,25 @@ export function TicketActions({
           const response = await fetch('/api/users?role=TECHNICIAN');
           if (!response.ok) throw new Error('Falha ao buscar técnicos');
           const data = await response.json();
-          setTechnicians(data);
+
+          // Encontra os IDs das áreas BUILDING e ELECTRICAL
+          const buildingArea = allAreas.find((a) => a.name === 'BUILDING');
+          const electricalArea = allAreas.find((a) => a.name === 'ELECTRICAL');
+          const buildingElectricalIds = [
+            buildingArea?.id,
+            electricalArea?.id,
+          ].filter(Boolean);
+
+          // Se o chamado for de Predial ou Elétrica, mostra técnicos de ambas as áreas
+          let filteredTechnicians = data;
+          if (ticket.areaId && buildingElectricalIds.includes(ticket.areaId)) {
+            filteredTechnicians = data.filter(
+              (tech: Technician) =>
+                tech.areaId && buildingElectricalIds.includes(tech.areaId),
+            );
+          }
+
+          setTechnicians(filteredTechnicians);
           // eslint-disable-next-line
         } catch (error: any) {
           toast.error('Erro ao carregar técnicos');
@@ -205,7 +224,7 @@ export function TicketActions({
       }
       fetchTechnicians();
     }
-  }, [canAssignTech]);
+  }, [canAssignTech, ticket.areaId, allAreas]);
 
   // eslint-disable-next-line
   async function handleUpdate(values: any) {
@@ -276,6 +295,12 @@ export function TicketActions({
   };
   const roleInfo = getRoleInfo();
   const RoleIcon = roleInfo.icon;
+
+  // Função auxiliar para obter o label da área do técnico
+  const getTechnicianAreaLabel = (tech: Technician) => {
+    const area = allAreas.find((a) => a.id === tech.areaId);
+    return area ? AREA_LABELS[area.name] || area.name : '';
+  };
 
   return (
     <Card className="relative h-full overflow-hidden border-0 shadow-xl dark:bg-slate-900">
@@ -351,7 +376,12 @@ export function TicketActions({
                             <SelectItem key={tech.id} value={tech.id}>
                               <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-purple-500" />
-                                {tech.name}
+                                <span>{tech.name}</span>
+                                {tech.areaId && (
+                                  <span className="text-xs text-slate-500">
+                                    ({getTechnicianAreaLabel(tech)})
+                                  </span>
+                                )}
                               </div>
                             </SelectItem>
                           ))}

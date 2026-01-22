@@ -48,7 +48,7 @@ async function getTicketData(ticketId: string) {
     return redirect('/login');
   }
 
-  const { id: userId, role, areaId } = session.user;
+  const { id: userId, role, areaId, email } = session.user;
 
   const ticket = await db.ticket.findUnique({
     where: { id: ticketId },
@@ -79,19 +79,22 @@ async function getTicketData(ticketId: string) {
   const isRequester = ticket.requesterId === userId;
   const isTechnician = ticket.technicianId === userId;
   const isManager = role === Role.MANAGER && ticket.areaId === areaId;
+  const isEv = email === 'everaldo.reis@sp.senai.br';
 
-  const canView = isSuperAdmin || isRequester || isTechnician || isManager;
+  const canView =
+    isSuperAdmin || isRequester || isTechnician || isManager || isEv;
 
   if (!canView) {
     return redirect('/dashboard');
   }
 
+  // Buscar todas as áreas para o TicketActions (mantém id e name)
   let areas: { id: string; name: string }[] = [];
-  if (role === Role.MANAGER || role === Role.SUPER_ADMIN) {
-    areas = (await db.area.findMany({
+  if (role === Role.MANAGER || role === Role.SUPER_ADMIN || isEv) {
+    areas = await db.area.findMany({
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
-    })) as Area[];
+    });
   }
 
   return { ticket, session, areas };
@@ -201,6 +204,13 @@ const PRIORITY_CONFIG: Record<
   },
 };
 
+// Configuração de Labels para Áreas
+const AREA_LABELS: Record<string, string> = {
+  TI: 'TI',
+  BUILDING: 'Predial',
+  ELECTRICAL: 'Elétrica',
+};
+
 export default async function TicketDetailPage({
   params,
 }: {
@@ -228,7 +238,7 @@ export default async function TicketDetailPage({
 
   return (
     <div className="min-h-screen dark:bg-slate-950">
-      <div className="mx-auto max-w-[1600px] space-y-6 p-4 md:p-6 lg:p-8">
+      <div className="mx-auto max-w-400 space-y-6 p-4 md:p-6 lg:p-8">
         {/* Breadcrumb e Navegação */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -321,7 +331,7 @@ export default async function TicketDetailPage({
                     <MetaItem
                       icon={<Building2 className="h-4 w-4 sm:h-5 sm:w-5" />}
                       label="Área"
-                      value={ticket.area.name}
+                      value={AREA_LABELS[ticket.area.name]}
                       gradient="from-purple-500 to-indigo-500"
                     />
                     <MetaItem
@@ -358,7 +368,7 @@ export default async function TicketDetailPage({
             </Card>
 
             {/* Descrição */}
-            <Card className="group relative min-h-[220px] overflow-hidden border-0 pt-1 shadow-xl backdrop-blur-xl transition-all dark:bg-slate-900">
+            <Card className="group relative min-h-55 overflow-hidden border-0 pt-1 shadow-xl backdrop-blur-xl transition-all dark:bg-slate-900">
               <div className="absolute top-0 right-0 left-0 h-1 rounded-t-2xl bg-linear-to-r from-emerald-500 to-teal-500" />
               <CardHeader className="border-b bg-linear-to-r from-emerald-50/80 to-teal-50/80 p-4 backdrop-blur-xl dark:from-emerald-950/30 dark:to-teal-950/30 [.border-b]:pb-2">
                 <CardTitle className="flex items-center gap-2 text-lg font-bold sm:gap-3 sm:text-xl">
@@ -490,7 +500,7 @@ export default async function TicketDetailPage({
                 <DetailRow
                   icon={<Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />}
                   label="Área"
-                  value={ticket.area.name}
+                  value={AREA_LABELS[ticket.area.name]}
                   iconColor="text-purple-600 dark:text-purple-400"
                   iconBg="bg-purple-100/80 dark:bg-purple-950/40"
                 />
