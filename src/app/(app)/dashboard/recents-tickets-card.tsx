@@ -54,6 +54,13 @@ const STATUS_CONFIG: Record<
     bgColor: 'bg-blue-50 dark:bg-blue-950/30',
     textColor: 'text-blue-700 dark:text-blue-400',
   },
+  ASSIGNED: {
+    variant: 'outline',
+    gradient: 'from-blue-400 to-indigo-600',
+    label: 'Atribuído',
+    bgColor: 'bg-yellow-100 dark:bg-yellow-950',
+    textColor: 'text-yellow-800 dark:text-yellow-300',
+  },
   IN_PROGRESS: {
     variant: 'secondary',
     gradient: 'from-amber-400 to-orange-600',
@@ -193,7 +200,7 @@ const TicketItem = ({ ticket }: { ticket: Ticket; index: number }) => {
 // Componente principal
 export function RecentTicketsCard({ tickets }: RecentTicketsCardProps) {
   return (
-    <Card className="relative min-h-[675px] overflow-hidden border-0 bg-white shadow-xl dark:bg-slate-900">
+    <Card className="relative min-h-168.75 overflow-hidden border-0 bg-white shadow-xl dark:bg-slate-900">
       {/* Gradient decorativo no topo */}
       <div className="absolute top-0 right-0 left-0 h-1 bg-linear-to-r from-blue-500 via-purple-500 to-emerald-500" />
 

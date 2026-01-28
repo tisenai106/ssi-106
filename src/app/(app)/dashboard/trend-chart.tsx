@@ -32,8 +32,8 @@ interface TrendChartProps {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
-    const novos = payload[0].value;
-    const resolvidos = payload[1].value;
+    const novos = payload[1].value;
+    const resolvidos = payload[0].value;
     const diferenca = novos - resolvidos;
 
     return (
@@ -138,7 +138,7 @@ export function TrendChart({ data }: TrendChartProps) {
     totalNovos > 0 ? ((totalResolvidos / totalNovos) * 100).toFixed(1) : '0.0';
 
   return (
-    <Card className="relative min-h-[675px] overflow-hidden border-0 bg-white shadow-xl dark:bg-slate-900">
+    <Card className="relative min-h-168.75 overflow-hidden border-0 bg-white shadow-xl dark:bg-slate-900">
       {/* Gradient decorativo no topo */}
       <div className="absolute top-0 right-0 left-0 h-1 bg-linear-to-r from-blue-500 via-purple-500 to-emerald-500" />
 
@@ -168,7 +168,7 @@ export function TrendChart({ data }: TrendChartProps) {
       </CardHeader>
 
       <CardContent className="pt-2">
-        <div className="h-[400px] w-full">
+        <div className="h-100 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={data}

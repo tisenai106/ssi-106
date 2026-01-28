@@ -134,7 +134,7 @@ export function AreaChart({ data }: AreaChartProps) {
             Distribuição dos chamados por departamento
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex h-[350px] items-center justify-center">
+        <CardContent className="flex h-87.5 items-center justify-center">
           <div className="space-y-2 text-center">
             <Building2 className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-700" />
             <p className="text-slate-500 dark:text-slate-400">
@@ -147,7 +147,7 @@ export function AreaChart({ data }: AreaChartProps) {
   }
 
   return (
-    <Card className="relative min-h-[620px] overflow-hidden border-0 bg-white shadow-xl dark:bg-slate-900">
+    <Card className="relative min-h-155 overflow-hidden border-0 bg-white shadow-xl dark:bg-slate-900">
       {/* Gradient decorativo no topo */}
       <div className="absolute top-0 right-0 left-0 h-1 bg-linear-to-r from-blue-500 via-purple-500 to-emerald-500" />
 

@@ -8,6 +8,7 @@ import { NewCommentEmail } from '@/emails/new-comment-email';
 import React from 'react'; // Necessário para React.createElement
 import db from '@/app/_lib/prisma';
 import { fromEmail, resend } from '@/app/_lib/resend';
+import { sendPushNotification } from '@/app/_lib/push';
 
 // --- Schema (sem alteração) ---
 const commentCreateSchema = z.object({
@@ -109,6 +110,13 @@ export async function POST(
             commentText: newComment.text,
             ticketUrl: ticketUrl,
           }),
+        });
+
+        await sendPushNotification({
+          userId: ticket.requester.id, // Precisa incluir o ID na query do manager
+          title: 'Novo Comentário no seu chamado 🚨',
+          body: `Novo comentário: ${newComment.text}`,
+          url: `/tickets/${ticketUrl}`,
         });
       } catch (emailError) {
         // Loga o erro, mas não falha a requisição

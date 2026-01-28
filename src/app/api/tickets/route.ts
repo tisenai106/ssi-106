@@ -12,6 +12,7 @@ import { NewTicketEmail } from '@/emails/new-ticket-email';
 
 import { generateTicketIdV2 } from '@/app/_lib/generate-ticket-id';
 import TicketConfirmationEmail from '@/emails/ticket-confirmation-email';
+import { sendPushNotification } from '@/app/_lib/push';
 
 /* eslint-disable */
 
@@ -238,6 +239,13 @@ async function sendConfirmationToRequester(ticket: any): Promise<void> {
       }),
     });
 
+    await sendPushNotification({
+      userId: ticket.requester.id,
+      title: 'Novo Chamado Criado 🚨',
+      body: `Novo chamado de ${ticket.areaName}: ${ticket.title}`,
+      url: `/tickets/${ticket.id}`,
+    });
+
     console.log(
       `[EMAIL_SUCCESS] Confirmação enviada para: ${ticket.requester.email}`,
     );
@@ -297,6 +305,13 @@ async function sendNotificationToManagers(ticket: any): Promise<void> {
               areaName: ticket.area.name,
               createdAt: ticket.createdAt,
             }),
+          });
+
+          await sendPushNotification({
+            userId: manager.id, // Precisa incluir o ID na query do manager
+            title: 'Novo Chamado 🚨',
+            body: `Novo chamado de ${ticket.areaName}: ${ticket.title}`,
+            url: `/tickets/${ticket.id}`,
           });
 
           console.log(

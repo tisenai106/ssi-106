@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { ModeToggle } from './mode-toggle'; // (Assumindo que este componente existe)
 import { NavLink } from './nav-link'; // (O seu componente de link ativo)
+import { PushNotificationManager } from './push-notification-manager';
 
 export async function Header() {
   // Busca a sessão no servidor
@@ -71,8 +72,13 @@ export async function Header() {
 
         {/* 4. Ações (ModeToggle e UserNav) - Sempre Visíveis */}
         <div className="flex w-full flex-row-reverse items-center justify-between md:w-fit md:flex-row md:gap-4">
-          <div>
-            <ModeToggle />
+          <div className="flex gap-2">
+            <div>
+              <PushNotificationManager />
+            </div>
+            <div>
+              <ModeToggle />
+            </div>
           </div>
           <Link
             href="/dashboard"

@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const roleFilter = searchParams.get('role'); // Filtro: /api/users?role=TECHNICIAN
   const ticketAreaId = searchParams.get('ticketAreaId'); // Novo filtro para área do chamado
+  const includeManagers = searchParams.get('includeManagers') === 'true'; // Incluir gestores
 
   const where: Prisma.UserWhereInput = {};
 
@@ -108,7 +109,12 @@ export async function GET(req: NextRequest) {
   // Se o filtro de Role for aplicado
   if (roleFilter) {
     if (Object.values(Role).includes(roleFilter as Role)) {
-      where.role = roleFilter as Role;
+      // Se includeManagers for true e o filtro for TECHNICIAN, incluir também MANAGER
+      if (includeManagers && roleFilter === 'TECHNICIAN') {
+        where.role = { in: [Role.TECHNICIAN, Role.MANAGER] };
+      } else {
+        where.role = roleFilter as Role;
+      }
     } else {
       return NextResponse.json({ error: 'Role inválida' }, { status: 400 });
     }

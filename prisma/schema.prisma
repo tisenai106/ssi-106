@@ -57,6 +57,7 @@ model User {
   area         Area?        @relation(fields: [areaId], references: [id])
   tickets      Ticket[]     @relation("TicketRequester") // Chamados que abriu
   assigned     Ticket[]     @relation("TicketTechnician") // Chamados para atender
+  pushSubscriptions PushSubscription[]
   comments     Comment[]
   uploads      Attachment[]
 
@@ -171,4 +172,17 @@ model PasswordResetToken {
 
   @@unique([email, token])
   @@map("password_reset_tokens")
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  endpoint  String   @unique // O endereço único do browser
+  p256dh    String   // Chave de criptografia
+  auth      String   // Chave de autenticação
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("push_subscriptions")
+  @@index([userId])
 }

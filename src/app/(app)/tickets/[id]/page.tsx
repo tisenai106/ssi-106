@@ -337,10 +337,15 @@ export default async function TicketDetailPage({
                     <MetaItem
                       icon={<Calendar className="h-4 w-4 sm:h-5 sm:w-5" />}
                       label="Aberto em"
-                      value={format(
-                        new Date(ticket.createdAt),
-                        "dd/MM/yyyy 'às' HH:mm",
-                        { locale: ptBR },
+                      value={new Date(ticket.createdAt).toLocaleDateString(
+                        'pt-BR',
+                        {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        },
                       )}
                       gradient="from-emerald-500 to-teal-500"
                     />

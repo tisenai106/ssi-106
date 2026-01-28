@@ -12,6 +12,7 @@ import React from 'react';
 import db from '@/app/_lib/prisma';
 import { fromEmail, resend } from '@/app/_lib/resend';
 import { addBusinessDays } from 'date-fns';
+import { sendPushNotification } from '@/app/_lib/push';
 
 // --- Schema (sem alteração) ---
 const ticketUpdateSchema = z.object({
@@ -224,6 +225,13 @@ export async function PATCH(
             assignedAt: new Date(),
           }),
         });
+
+        await sendPushNotification({
+          userId: updatedTicket.id, // Precisa incluir o ID na query do manager
+          title: 'Novo Chamado Atribuído para Você 🚨',
+          body: `Novo chamado de ${updatedTicket.area.name}: ${updatedTicket.title}`,
+          url: `/tickets/${updatedTicket.id}`,
+        });
       } catch (emailError) {
         console.error('[API_TICKETS_ASSIGN_EMAIL_ERROR]', emailError);
       }
@@ -253,6 +261,13 @@ export async function PATCH(
             updatedAt: ticket.updatedAt,
             ticketId: ticket.ticketId,
           }),
+        });
+
+        await sendPushNotification({
+          userId: ticket.id, // Precisa incluir o ID na query do manager
+          title: 'Seu chamado mudou de status 🚨',
+          body: `O status do chamado ${ticket.title} agora é: ${statusLabels[updatedTicket.status]}`,
+          url: `/tickets/${ticket.id}`,
         });
         console.log('enviou o email');
         console.log(fromEmail!);
